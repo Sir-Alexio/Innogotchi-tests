@@ -4,7 +4,6 @@ using InnoGotchi_backend.Repositories.Abstract;
 using InnoGotchi_backend.Services;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using InnoGotchi_backend.Models.Entity;
 
 namespace MoqTestsForApp.Server_side_tests
 {
@@ -14,11 +13,11 @@ namespace MoqTestsForApp.Server_side_tests
         public async Task UpdateFarmTest()
         {
             // Arrange
-            var mockRepository = new Mock<IRepositoryManager>();
-            var mockFarmRepository = new Mock<IFarmRepository>(); 
+            Mock<IRepositoryManager> mockRepository = new Mock<IRepositoryManager>();
+            Mock<IFarmRepository> mockFarmRepository = new Mock<IFarmRepository>(); 
             mockRepository.Setup(r => r.Farm).Returns(mockFarmRepository.Object);
 
-            var farmService = new FarmService(mockRepository.Object);
+            FarmService farmService = new FarmService(mockRepository.Object);
 
             Farm farm = new Farm()
             {
@@ -46,11 +45,11 @@ namespace MoqTestsForApp.Server_side_tests
         public async Task UpdateFarmExeptionTest()
         {
             // Arrange
-            var mockRepository = new Mock<IRepositoryManager>();
-            var mockFarmRepository = new Mock<IFarmRepository>();
+            Mock<IRepositoryManager> mockRepository = new Mock<IRepositoryManager>();
+            Mock<IFarmRepository> mockFarmRepository = new Mock<IFarmRepository>();
             mockRepository.Setup(r => r.Farm).Returns(mockFarmRepository.Object);
 
-            var farmService = new FarmService(mockRepository.Object);
+            FarmService farmService = new FarmService(mockRepository.Object);
 
             Farm farm = new Farm()
             {
@@ -66,13 +65,11 @@ namespace MoqTestsForApp.Server_side_tests
             mockRepository.Setup(r => r.Save()).Throws(new DbUpdateException());
 
             // Act
-            var exception = await Assert.ThrowsAsync<CustomExeption>(async () => await farmService.UpdateFarm(farm));
+            CustomExeption exception = await Assert.ThrowsAsync<CustomExeption>(async () => await farmService.UpdateFarm(farm));
 
             //Assert
             Assert.Equal("Can not update database", exception.Message);
-            Assert.Equal(StatusCode.UpdateFailed, exception.StatusCode);
-
-            
+            Assert.Equal(StatusCode.UpdateFailed, exception.StatusCode); 
         }
 
     }
