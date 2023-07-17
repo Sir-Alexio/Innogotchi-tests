@@ -35,11 +35,39 @@ namespace MoqTests
                 { HttpContext = new DefaultHttpContext { User = userMock.Object } }
             };
 
-            var result = await controller.CreateFarm(dto) as OkObjectResult;
+            var result = await controller.CreateFarm(dto) as ObjectResult;
 
             //Assert
             Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
             Assert.Equal(JsonSerializer.Serialize(dto), result.Value);
+
+        }
+
+        [Fact]
+        public async Task BadRequestFarmTest()
+        {
+            //Arrange
+            Mock<IFarmService> farmServiceMoke = new Mock<IFarmService>();
+            Mock<ClaimsPrincipal> userMock = new Mock<ClaimsPrincipal>();
+
+            FarmDto dto = new FarmDto { FarmName = "test farm name", AlivePetsCount = 0, DeadPetsCount = 0 };
+
+            farmServiceMoke.Setup(p => p.CreateFarm(dto, "q")).ReturnsAsync(false);
+
+            userMock.Setup(x => x.FindFirst(ClaimTypes.Email))
+            .Returns(new Claim(ClaimTypes.Email, "q"));
+
+            //Act
+            FarmsController controller = new FarmsController(farmServiceMoke.Object, null, null, null)
+            {
+                ControllerContext = new Microsoft.AspNetCore.Mvc.ControllerContext
+                { HttpContext = new DefaultHttpContext { User = userMock.Object } }
+            };
+
+            var result = await controller.CreateFarm(dto) as ObjectResult;
+
+            //Assert
+            Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
 
         }
 
